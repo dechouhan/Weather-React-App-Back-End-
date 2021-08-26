@@ -16,6 +16,7 @@ routerUsers.post("/signup", async (req, res) => {
     name: req.body.name,
     email: req.body.email,
     password: hash,
+    city: req.body.city,
   });
   await user.save();
   res.status(200).json({ user, message: "success" });
@@ -45,6 +46,7 @@ routerUsers.post("/login", async (req, res) => {
   const logs = await new Logs({
     email: req.body.email,
     time: new Date().toTimeString(),
+    date: new Date(),
   });
   await logs.save();
 
@@ -54,6 +56,7 @@ routerUsers.post("/login", async (req, res) => {
     _id: fetchUser._id,
     email: fetchUser.email,
     name: fetchUser.name,
+    city: fetchUser.city,
     message: "Login Successfully",
   });
 });
