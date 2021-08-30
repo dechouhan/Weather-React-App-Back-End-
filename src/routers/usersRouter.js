@@ -4,7 +4,7 @@ const routerUsers = new express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Logs = require("../models/logsModel");
-
+const auth = require("../db/Middleware/Auth");
 routerUsers.post("/signup", async (req, res) => {
   const userExist = await Users.findOne({ email: req.body.email });
   if (userExist) {
@@ -43,6 +43,7 @@ routerUsers.post("/login", async (req, res) => {
     "secret_this_should_be_longer",
     { expiresIn: "1h" }
   );
+  console.log(token);
   const logs = await new Logs({
     email: req.body.email,
     time: new Date().toTimeString(),
@@ -65,6 +66,19 @@ routerUsers.get("/users", async (req, res) => {
   try {
     const allUsersData = await Users.find({});
     res.send(allUsersData);
+  } catch (e) {
+    res.status(404).send(e);
+  }
+});
+
+routerUsers.get("/userlog",auth, async (req, res) => {
+  try {
+    const { token } = req.query;
+    const tokenAuth = jwt.verify(token, "secret_this_should_be_longer");
+    if (tokenAuth) {
+      const allUsersData = await Logs.find({email:tokenAuth.email});
+      res.send(allUsersData);
+    }
   } catch (e) {
     res.status(404).send(e);
   }
